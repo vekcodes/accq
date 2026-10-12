@@ -1,0 +1,51 @@
+# One file per market. Copy and edit to add a market.
+name: installation_overijssel
+label: Installatiebedrijven Overijssel
+sbi: "4322"                 # loodgieters- en cv-installatiebedrijven
+region: Overijssel
+
+universe:
+  # Province boundary from OSM (preferred). bbox is the fallback if `area` is removed.
+  area: {name: Overijssel, admin_level: 4}
+  bbox: [52.0, 5.85, 52.75, 7.1]
+  osm_filters:
+    - 'nwr["craft"~"^(plumber|hvac|heating_engineer)$"]'
+    - 'nwr["shop"="trade"]["trade"~"plumb|heating|sanitary"]'
+  # Extra sources: drop CSVs in data/extra/<market>/ with columns
+  # name,city,postcode,street,website,phone,email,source
+  extra_dir: data/extra/installation_overijssel
+  # Optional NOW register CSV with columns name,city,amount
+  now_register: data/now_register.csv
+
+filters:
+  founded_by: 1996          # hard filter: founded in or before
+  employees_min: 5
+  employees_max: 50
+  # Unknown founding year / headcount: "keep" puts the company in a needs-check tier,
+  # "drop" excludes it. Free sources leave many unknowns, so default is keep.
+  unknown_founded: keep
+  unknown_employees: keep
+
+weights:                    # positive helps, negative hurts
+  owner_60_plus: 3.0
+  owner_active: 3.0
+  no_successor: 2.5
+  now_received: 1.0
+  healthy_reviews: 1.0
+  stale_website: 1.0
+  multi_source: 1.0         # found in 2+ universe sources: real, active, non-trivial
+  successor_named: -6.0
+  recent_ownership_change: -6.0
+  new_hires: -1.0
+
+top_n: 50
+
+classifier:
+  backend: claude-cli       # claude-cli | export | heuristic
+  model: haiku
+
+letter:
+  sender_name: "[AFZENDER NAAM]"
+  sender_company: "[AFZENDER BEDRIJF]"
+  sender_address: "[AFZENDER ADRES]"
+  sender_contact: "[TELEFOON / E-MAIL]"
